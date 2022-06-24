@@ -1,50 +1,11 @@
-const fs = require('fs')
-const path = __dirname.replace('controllers','')
 const Flights = require('../models/Flight').flights;
 const dummyData = require('../dummydata');
-
 
 // 1. Add/Book Flight
 // 2. Get all Flight
 // 3. Get a single Flight
 // 4. Update/Edit Flight
 // 5. Delete Flight
-const createDB = (data)=>{
-  fs.writeFileSync(path + '\\DB.json', JSON.stringify(data));
-  
-  let DB = readFile(path + '\\DB.json', (err, data)=>{
-    if(err){
-      console.log(err)
-      return;
-    }else{
-      console.log('DATA: ',data)
-    }
-  })
-  return DB
-}
-
- const readFile=(path, callback)=>{
-  fs.readFile(path, (err, data)=>{
-    if(err){
-      return callback && callback(err)
-    }
-    try{
-      const DB = JSON.parse(data)
-      return callback && callback(null, DB)
-    }catch(err){
-      return callback && callback(err)
-    }
-  })
- }
-
- const saveToDB = (data) =>{
-   fs.writeFile(path + '\\DB.json', data, err =>{
-    if(err){
-      console.log('could not save file')
-     return false && err
-    }else return true
-  })
- }
 
 // @desc      Add/Book Flight
 // @route     POST /api/v1/flights/
@@ -54,46 +15,21 @@ exports.bookFlight = (req, res) => {
     const data = {title,time,price,date};
     const dateObj = new Date();
     const id = `flight-${dateObj.getTime()}`
-
-    if(!title){
-      res.status(406).json({
-        success: false,
-        message: 'Please add title',
-      });
-    }if(!time){
-      res.status(406).json({
-        success: false,
-        message: 'Please add time',
-      });
-    }if(!price){
-      res.status(406).json({
-        success: false,
-        message: 'Please add price',
-      });
-    }if(!date){
-      res.status(406).json({
-        success: false,
-        message: 'Please add date',
-      });
-    }
-
-    const flight = {id, ...data}
-
-    const FLIGHTS = readFile(path + '\\DB.json', (err, data)=>{
-      if(!data){
-        let db = createDB({});
-        console.log(db)
-        return db;
-      }else{
-        console.log('err: ',err)
-      }
-    })
-
     
-    if (flight) {
-      FLIGHTS.push(flight)
-      const newFlightDb = saveToDB(JSON.stringify(...FLIGHTS))
-      if(newFlightDb){
+    try{
+      if(!title){
+        return res.status(406).send({ message: 'Please add title'});
+    }else if(!time){
+       return res.status(406).send({message: 'Please add time'});
+    }else if(!price){
+     return res.status(406).send({message: 'Please add price'});
+    }else if(!date){
+      return res.status(406).send({message: 'Please add date'});
+    }else{
+      const flight = {id, ...data}
+        
+      if (flight) {
+        Flights.push(flight)
         res.status(201).json({
           success: true,
           message: 'Flight booked successfully',
@@ -101,11 +37,15 @@ exports.bookFlight = (req, res) => {
         });
       }
     }
-    else {
-      res.status(400).json({
-        success: false,
-        message: 'Could not book flight'
-      });
+    }
+    catch(err){
+   
+        res.status(400).json({
+          success: false,
+          message: 'Could not book flight',
+          error:err
+        });
+
     }
 }
 
