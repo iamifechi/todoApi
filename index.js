@@ -30,7 +30,7 @@ connectDB()
 app.use("/api/v1/todo", routes);
 
 //Array of Bulk Recipients
-let recipients = ['nnebedumfav@gmail.com','iamifechi@gmail.com']
+let recipients = ['example@gmail.com','iamifechi@gmail.com']
 
 let mailOptions = {
   from: 'iamifechi@gmail.com',
