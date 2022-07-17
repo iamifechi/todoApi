@@ -3,6 +3,7 @@ const { json } = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/todoRoute");
 require("dotenv/config");
+const {transporter} = require("./utils/nodemail")
 
 const app = express();
 
@@ -27,6 +28,21 @@ connectDB()
 
 // Mount route
 app.use("/api/v1/todo", routes);
+
+let mailOptions = {
+  from: 'iamifechi@gmail.com',
+  to: 'nnebedumfav@gmail.com',
+  subject: 'Congratulations on creating your Email Sender NodeJs',
+  text: 'Keep going!!!'
+};
+
+transporter.sendMail(mailOptions, function(err, data) {
+  if (err) {
+    console.log("Error " + err);
+  } else {
+    console.log("Email sent successfully");
+  }
+});
 
 
 app.get('/', (req, res) =>
